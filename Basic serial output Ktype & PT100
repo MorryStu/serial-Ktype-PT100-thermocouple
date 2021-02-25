@@ -1,0 +1,44 @@
+
+#include <SPI.h>
+#include "Adafruit_MAX31855.h"
+#include "Adafruit_MAX31865.h"
+Adafruit_MAX31865 max = Adafruit_MAX31865(7, 11, 12, 13);
+#define MAXDO   12
+#define MAXCS   8
+#define MAXCLK  13
+
+// initialize the Thermocouple
+Adafruit_MAX31855 Ktype(MAXCLK, MAXCS, MAXDO);
+// The value of the Rref resistor. Use 430.0 for PT100 and 4300.0 for PT1000
+#define RREF      435.0 //adjust to calibrate
+// The 'nominal' 0-degrees-C resistance of the sensor
+// 100.0 for PT100, 1000.0 for PT1000
+#define RNOMINAL  100.0
+void setup() {
+  Serial.begin(9600);
+ 
+  while (!Serial) delay(1); // wait for Serial on Leonardo/Zero, etc
+
+  Serial.println("MAX31855 `                                                                                                 test");
+  // wait for MAX chip to stabilize
+  delay(500);
+}
+
+void loop() {
+  
+   max.begin(MAX31865_3WIRE);
+   double c = Ktype.readCelsius();
+   
+     Serial.print("Ktype = "); 
+     Serial.println(c);
+      uint16_t rtd = max.readRTD();
+
+ 
+  float ratio = rtd;
+  ratio /= 32768;
+  
+  Serial.print("PT100 = "); Serial.println(max.temperature(RNOMINAL, RREF));
+   //}
+   
+   delay(5000);
+}
